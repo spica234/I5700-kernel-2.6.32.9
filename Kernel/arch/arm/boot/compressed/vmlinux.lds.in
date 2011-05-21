@@ -48,7 +48,7 @@ SECTIONS
   .bss			: { *(.bss) }
   _end = .;
 
-  .stack (NOLOAD)	: { *(.stack) }
+  .stack	: { *(.stack) }
 
   .stab 0		: { *(.stab) }
   .stabstr 0		: { *(.stabstr) }
@@ -58,4 +58,3 @@ SECTIONS
   .stab.indexstr 0	: { *(.stab.indexstr) }
   .comment 0		: { *(.comment) }
 }
-
