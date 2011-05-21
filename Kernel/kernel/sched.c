@@ -76,6 +76,7 @@
 #include <asm/irq_regs.h>
 
 #include "sched_cpupri.h"
+#include "sched_autogroup.h"
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/sched.h>
@@ -269,12 +270,20 @@ struct task_group {
 	struct rcu_head rcu;
 	struct list_head list;
 
+	
+
+
 	struct task_group *parent;
 	struct list_head siblings;
 	struct list_head children;
+
+#ifdef CONFIG_SCHED_AUTOGROUP
+	struct autogroup *autogroup;
+#endif
 };
 
 #ifdef CONFIG_USER_SCHED
+
 
 /* Helper function to pass uid information to create_sched_user() */
 void set_tg_uid(struct user_struct *user)
@@ -870,6 +879,25 @@ static inline u64 global_rt_runtime(void)
 static inline int task_current(struct rq *rq, struct task_struct *p)
 {
 	return rq->curr == p;
+}
+/*
+ * Look for any tasks *anywhere* that are running nice 0 or better. We do
+ * this lockless for overhead reasons since the occasional wrong result
+ * is harmless.
+ */
+int above_background_load(void)
+{
+  struct task_struct *cpu_curr;
+  unsigned long cpu;
+
+  for_each_online_cpu(cpu) {
+    cpu_curr = cpu_rq(cpu)->curr;
+    if (unlikely(!cpu_curr))
+    continue;
+    if (PRIO_TO_NICE(cpu_curr->static_prio) < 1)
+    return 1;
+  }
+  return 0;
 }
 
 #ifndef __ARCH_WANT_UNLOCKED_CTXSW
@@ -1819,6 +1847,7 @@ static void update_sysctl(void);
 #include "sched_idletask.c"
 #include "sched_fair.c"
 #include "sched_rt.c"
+#include "sched_autogroup.c"
 #ifdef CONFIG_SCHED_DEBUG
 # include "sched_debug.c"
 #endif
@@ -9475,6 +9504,7 @@ void __init sched_init(void)
 #ifdef CONFIG_FAIR_GROUP_SCHED
 		init_task_group.shares = init_task_group_load;
 		INIT_LIST_HEAD(&rq->leaf_cfs_rq_list);
+		autogroup_init(&init_task);
 #ifdef CONFIG_CGROUP_SCHED
 		/*
 		 * How much cpu bandwidth does init_task_group get?
