@@ -245,6 +245,11 @@ static int __init s3c64xx_cpufreq_driver_init(struct cpufreq_policy *policy)
 	return ret;
 }
 
+static struct freq_attr *s3c64xx_cpufreq_attr[] = {
+  &cpufreq_freq_attr_scaling_available_freqs,
+  NULL,
+};
+
 static struct cpufreq_driver s3c64xx_cpufreq_driver = {
 	.owner		= THIS_MODULE,
 	.flags          = 0,
@@ -253,6 +258,7 @@ static struct cpufreq_driver s3c64xx_cpufreq_driver = {
 	.get		= s3c64xx_cpufreq_get_speed,
 	.init		= s3c64xx_cpufreq_driver_init,
 	.name		= "s3c",
+	.attr		= s3c64xx_cpufreq_attr,
 };
 
 static int __init s3c64xx_cpufreq_init(void)
