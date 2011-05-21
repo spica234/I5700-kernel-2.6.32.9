@@ -5,3 +5,4 @@
 #
 
 obj-$(CONFIG_VIDEO_G2D)       += s3c_g2d_driver.o
+

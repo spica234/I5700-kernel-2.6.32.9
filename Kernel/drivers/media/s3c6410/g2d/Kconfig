@@ -11,3 +11,4 @@ config VIDEO_G2D
 	help
 	    FIMG-2D
 #endmenu
+

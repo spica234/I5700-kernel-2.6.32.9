@@ -152,4 +152,3 @@ int s3c_g2d_check_fifo(int empty_fifo);
  void s3c_2d_disable_effect(void);
 
 #endif /*_S3C_G2D_DRIVER_H_*/
-
